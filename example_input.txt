@@ -1,0 +1,13 @@
+Title=First example data set
+#This is a general comment about the measurements
+#in this data set
+FirstName: 1.00(10) #The first data point
+1.05 9 #The name of this point will be "2"
+#BadPoint: 7.9 50 #This point will be ignored
+NoComment: 1.02 +10-6
+*new
+Title=Second Example
+#This is a new data set
+12.7 8 #The name of this point will be "1"
+Asymmetric: 12.2(-3+10)
+Name with spaces: 13 2
