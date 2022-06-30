@@ -10,10 +10,11 @@ import averagingAlgorithms.outlierMethods;
 import ensdf_datapoint.dataPt;
 import java.util.List;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 
 public class outliersWindow extends javax.swing.JDialog {
+
+    private JTextField textField1;
 
     /**
      * Creates new form outliersWindow

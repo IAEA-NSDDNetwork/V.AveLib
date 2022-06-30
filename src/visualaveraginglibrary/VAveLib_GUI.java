@@ -135,7 +135,7 @@ public class VAveLib_GUI extends javax.swing.JFrame {
         plotDirChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Visual Averaging Library");
+        setTitle("Visual Averaging Library "+Config.version);
 
         jTabbedPane1.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -603,11 +603,19 @@ public class VAveLib_GUI extends javax.swing.JFrame {
 
     private void saveReport(averagingReport rpt, boolean append){
         if(yesReportRadioButtonMenuItem.isSelected()){
+        	boolean isNewFile=false;
             if(rptFilePath.equals("")){
                 JOptionPane.showMessageDialog(null, "Choose file to save report.");
                 reportFileButtonActionPerformed(null);
+                isNewFile=true;
             }
             try{
+            	if(isNewFile || !append) {
+                    String[] tmp=new String[1];
+                    tmp[0]=version()+"\n";
+                    textFileIO.write(tmp, reportFileChooser.getSelectedFile().getPath(), append);
+                    append=true;
+            	}
                 textFileIO.write(rpt.fullReport(), reportFileChooser.getSelectedFile().getPath(), append);
             }catch(IOException e){
                 JOptionPane.showMessageDialog(null, "IO Error: " + e.getMessage());
@@ -617,11 +625,19 @@ public class VAveLib_GUI extends javax.swing.JFrame {
     
     private void saveReport(String[] s, boolean append){
         if(yesReportRadioButtonMenuItem.isSelected()){
+        	boolean isNewFile=false;
             if(rptFilePath.equals("")){
                 JOptionPane.showMessageDialog(null, "Choose file to save report.");
                 reportFileButtonActionPerformed(null);
+                isNewFile=true;
             }
             try{
+            	if(isNewFile || !append) {
+                    String[] tmp=new String[1];
+                    tmp[0]=version()+"\n";
+                    textFileIO.write(tmp, reportFileChooser.getSelectedFile().getPath(), append);
+                    append=true;
+            	}
                 textFileIO.write(s, reportFileChooser.getSelectedFile().getPath(), append);
             }catch(IOException e){
                 JOptionPane.showMessageDialog(null, "IO Error: " + e.getMessage());
@@ -751,6 +767,18 @@ public class VAveLib_GUI extends javax.swing.JFrame {
                 averagingMethods.mp(dataset, precision, maxIt, rpt));
     }//GEN-LAST:event_mpButtonActionPerformed
 
+    private dataPt[] copyDataset(dataPt[] dataset) {
+    	dataPt[] out=new dataPt[0];
+    	try{
+    		out=new dataPt[dataset.length];
+    		for(int i=0;i<dataset.length;i++)
+    			out[i]=dataset[i].clone();
+    	}catch(Exception e) {
+    		
+    	}
+    	
+    	return out;
+    }
     private void compareButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compareButtonActionPerformed
         int ind;
         String data;
@@ -782,6 +810,9 @@ public class VAveLib_GUI extends javax.swing.JFrame {
         
         count = 0;
         tmp = new String[1];
+        
+        dataPt[] temp=null;
+        
         for(ind=0; ind<dataSetCheckBoxes.size(); ind++){
             if(dataSetCheckBoxes.get(ind).isSelected()){
                 count += 1;
@@ -790,12 +821,13 @@ public class VAveLib_GUI extends javax.swing.JFrame {
                 if(dataset == null){
                     return;
                 }
+                
                 rpt = new averagingReport();
                 rpt.dataSetName = dataSetCheckBoxes.get(ind).getText();
                 tmp[0] = rpt.dataSetHeader();
                 message = tmp[0];
                  //overwrite previous report, but append if more than one data set analysed
-                saveReport(tmp, count > 1);
+                saveReport(tmp, count>1);
                 
                 rpt = new averagingReport();
                 result = averagingMethods.unweightedAverage(dataset, rpt);
@@ -814,7 +846,9 @@ public class VAveLib_GUI extends javax.swing.JFrame {
                 message += rpt.briefReport(result) + "\n";
                 
                 rpt = new averagingReport();
-                result = averagingMethods.lwm(dataset, weightLimit, outlierMethod, confidenceLevel, rpt);
+                //note: this method could adjust the dataset and so use a copy of original dataset
+                temp=copyDataset(dataset);
+                result = averagingMethods.lwm(temp, weightLimit, outlierMethod, confidenceLevel, rpt);
                 if(roundingCheckBoxMenuItem.isSelected()){
                     result.setMinDisplayPlace(String.valueOf(VAveLib_GUI_methods.leastSigFig(data)));
                 }
@@ -822,7 +856,9 @@ public class VAveLib_GUI extends javax.swing.JFrame {
                 message += rpt.briefReport(result) + "\n";
                 
                 rpt = new averagingReport();
-                result = averagingMethods.nrm(dataset, paramArray[3]/100d, rpt);
+                //note: this method could adjust the dataset and so use a copy of original dataset
+                temp=copyDataset(dataset);
+                result = averagingMethods.nrm(temp, paramArray[3]/100d, rpt);
                 if(roundingCheckBoxMenuItem.isSelected()){
                     result.setMinDisplayPlace(String.valueOf(VAveLib_GUI_methods.leastSigFig(data)));
                 }
@@ -830,7 +866,9 @@ public class VAveLib_GUI extends javax.swing.JFrame {
                 message += rpt.briefReport(result) + "\n";
                 
                 rpt = new averagingReport();
-                result = averagingMethods.rt(dataset, outlierConfidenceLevel, rpt);
+                //note: this method could adjust the dataset and so use a copy of original dataset
+                temp=copyDataset(dataset);
+                result = averagingMethods.rt(temp, outlierConfidenceLevel, rpt);
                 if(roundingCheckBoxMenuItem.isSelected()){
                     result.setMinDisplayPlace(String.valueOf(VAveLib_GUI_methods.leastSigFig(data)));
                 }
@@ -838,7 +876,9 @@ public class VAveLib_GUI extends javax.swing.JFrame {
                 message += rpt.briefReport(result) + "\n";
                 
                 rpt = new averagingReport();
-                result = averagingMethods.evm(dataset, rpt);
+                //note: this method could adjust the dataset and so use a copy of original dataset
+                temp=copyDataset(dataset);
+                result = averagingMethods.evm(temp, rpt);
                 if(roundingCheckBoxMenuItem.isSelected()){
                     result.setMinDisplayPlace(String.valueOf(VAveLib_GUI_methods.leastSigFig(data)));
                 }
@@ -846,7 +886,8 @@ public class VAveLib_GUI extends javax.swing.JFrame {
                 message += rpt.briefReport(result) + "\n";
                 
                 rpt = new averagingReport();
-                result = averagingMethods.bootstrap(dataset, NUM_MEDIANS, rpt);
+                temp=copyDataset(dataset);
+                result = averagingMethods.bootstrap(temp, NUM_MEDIANS, rpt);
                 if(roundingCheckBoxMenuItem.isSelected()){
                     result.setMinDisplayPlace(String.valueOf(VAveLib_GUI_methods.leastSigFig(data)));
                 }
@@ -854,7 +895,8 @@ public class VAveLib_GUI extends javax.swing.JFrame {
                 message += rpt.briefReport(result) + "\n";
                 
                 rpt = new averagingReport();
-                result = averagingMethods.mp(dataset, precision, maxIt, rpt);
+                temp=copyDataset(dataset);
+                result = averagingMethods.mp(temp, precision, maxIt, rpt);
                 if(roundingCheckBoxMenuItem.isSelected()){
                     result.setMinDisplayPlace(String.valueOf(VAveLib_GUI_methods.leastSigFig(data)));
                 }
@@ -1160,6 +1202,11 @@ public class VAveLib_GUI extends javax.swing.JFrame {
         setPlotDirectory();
     }//GEN-LAST:event_resetPlotDirMenuItemActionPerformed
 
+    //added by Jun 6/28/2022
+    public String version() {
+    	return "Visual Averaging Library---Version "+Config.version;
+    }
+    
     /**
      * @param args the command line arguments
      */

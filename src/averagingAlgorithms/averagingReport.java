@@ -298,6 +298,15 @@ public class averagingReport {
                 reportData.setCell(i+1, 1, doublePrint(this.relativeWeights[i]*100d));
                 reportData.setCell(i+1, 2, doublePrint(this.ptChiSq[i]));
             }
+        }else if(this.bootstrap_NUM_MEDIANS != -1) {
+            reportData.setCell(0, 0, "Data Point");
+            //reportData.setCell(0, 1, "Relative Weight (%)");
+            //reportData.setCell(0, 2, "Point Chi**2");
+            for(i=0; i<this.originalDataSet.length; i++){
+                reportData.setCell(i+1, 0, this.originalDataSet[i].toString(true));
+                //reportData.setCell(i+1, 1, doublePrint(this.relativeWeights[i]*100d));
+                //reportData.setCell(i+1, 2, doublePrint(this.ptChiSq[i]));
+            }
         }
         
         result = new ArrayList<>();
@@ -316,6 +325,7 @@ public class averagingReport {
         }
         
         if(this.bootstrap_NUM_MEDIANS != -1){ //bootstrap report
+        	result.add("");
             result.add("Number of sub-sample medians taken: " + 
                     String.valueOf((int) this.bootstrap_NUM_MEDIANS));
             result.add("Chi**2/(N-1): " + doublePrint(this.reducedChiSq));

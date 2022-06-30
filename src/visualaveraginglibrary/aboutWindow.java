@@ -39,7 +39,7 @@ public class aboutWindow extends javax.swing.JDialog {
 
         jLabel1.setText("Visual Averaging Library (V.AveLib)");
 
-        jLabel2.setText("Version 1.2.2      Dated: August 12, 2016");
+        jLabel2.setText("Version 1.2.3      Dated: "+Config.version);
 
         jLabel3.setText("Code developed by Michael Birch (McMaster University)");
 

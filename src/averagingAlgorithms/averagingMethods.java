@@ -68,10 +68,10 @@ public final class averagingMethods {
         for(i=0; i<n; i++){
             deviationArray[i] = Math.pow(result.getValue() - dataset[i].getValue(), 2d);
             externaluncert += deviationArray[i];
-            internaluncert += 1.0d/dataset[i].gaussVariance();
+            internaluncert += dataset[i].gaussVariance();
         }
         externaluncert = Math.sqrt(externaluncert/((double)n*(n-1)));
-        internaluncert = 1.0d/Math.sqrt(internaluncert);
+        internaluncert = Math.sqrt(internaluncert) / ((double) n);
         result.setUpper(Math.max(internaluncert, externaluncert));
         result.setLower(result.getUpper());
         

@@ -91,6 +91,11 @@ public class dataPt {
         this.name = d.name;
     }
     
+    //added by Jun 6/28/2022
+    public dataPt clone() {
+    	return new dataPt(this);
+    }
+    
     //string parsing
     
     //returns an array with two elements which split the string s at the
@@ -168,10 +173,12 @@ public class dataPt {
      * by parsing s.
      * @param s the String to parse
      * @param d the dataPt object to assign if s can be parsed
+     * @param keepMinPlace <code>true</code> if the resulting dataPt should
+     *        retain the same minimum place value as the input string.
      * @return <code>true</code> if the String s can be parsed into a dataPt
      * object
      */
-    public static final boolean isParsable(String s, dataPt d){
+    public static final boolean isParsable(String s, dataPt d, boolean keepMinPlace){
         String name;
         String valueStr, uncertStr, upperStr, lowerStr;
         int minPlaceValue;
@@ -239,11 +246,15 @@ public class dataPt {
             d.setUpper(upper);
             d.setValue(value);
             d.setName(name);
+            if (keepMinPlace) d.setMinDisplayPlace(String.valueOf(minPlaceValue));
         }catch(NullPointerException e){
             // do nothing if data point is null
         }
         
         return true;
+    }
+    public static final boolean isParsable(String s, dataPt d){
+        return isParsable(s, d, false);
     }
     /**
      * Returns <code>true</code> if s can be parsed into a dataPt object.
@@ -251,7 +262,7 @@ public class dataPt {
      * @return <code>true</code> if s can be parsed into a dataPt object
      */
     public static final boolean isParsable(String s){
-        return isParsable(s, null);
+        return isParsable(s, null, false);
     }
     
     /**
@@ -259,19 +270,24 @@ public class dataPt {
      * represent a dataPt object using the ENSDF format, e.g. "10.5(12)".
      * If s cannot be parsed then a null pointer is returned.
      * @param s String to parse
+     * @param keepMinPlace <code>true</code> if the resulting dataPt should
+     *        retain the same minimum place value as the input string.
      * @return the dataPt object represented by s.
      */
-    public static final dataPt constructFromString(String s){
+    public static final dataPt constructFromString(String s, boolean keepMinPlace){
         dataPt result;
         boolean parsable;
         
         result = new dataPt();
-        parsable = dataPt.isParsable(s, result);
+        parsable = dataPt.isParsable(s, result, keepMinPlace);
         if(parsable){
             return result;
         }else{
             return null;
         }
+    }
+    public static final dataPt constructFromString(String s) {
+        return constructFromString(s, false);
     }
     
     /**
@@ -286,9 +302,11 @@ public class dataPt {
      * @param uncert a String representing the uncertainty on the quantity
      * @param ENSDF_format provide the value <code>true</code> if the 
      * <code>uncert</code> argument is already given in the ENSDF format
+     * @param keepMinPlace <code>true</code> if the resulting dataPt should
+     *        retain the same minimum place value as the input string.
      * @return a String representing the quantity in the ENSDF format
      */
-    public static final String ENSDFprint(String value, String uncert, boolean ENSDF_format){
+    public static final String ENSDFprint(String value, String uncert, boolean ENSDF_format, boolean keepMinPlace){
         double val, u;
         double[] d;
         
@@ -302,7 +320,8 @@ public class dataPt {
                 u = Double.parseDouble(uncert);
                 if(ENSDF_format){ //uncertainty is given in the ENSDF format
                     //return without name and with max 25 on uncertainty
-                    return constructFromString(value + " " + uncert).toString(false, true).replace("(", " ").replace(")", "");
+                    dataPt pt = constructFromString(value + " " + uncert, keepMinPlace);
+                    return pt.toString(false, true).replace("(", " ").replace(")", "");
                 }else{ //raw uncertainty is given
                     d = new double[3];
                     d[0] = val;
@@ -312,13 +331,19 @@ public class dataPt {
                     return fmtHandler.double_to_ENSDF(d, true).replace("(", " ").replace(")", "");
                 }
             }catch(NumberFormatException e){
-                return fmtHandler.double_to_nSigFig(val, 3) + " " + uncert;
+                if (keepMinPlace) {
+                    return value + " " + uncert;
+                } else {
+                    return fmtHandler.double_to_nSigFig(val, 3) + " " + uncert;
+                }
             }
         }catch(NumberFormatException e){
             return value + " " + uncert;
         }
     }
-    
+    public static final String ENSDFprint(String value, String uncert, boolean ENSDF_format) {
+        return ENSDFprint(value, uncert, ENSDF_format, false);
+    }
     
     //getters and setters
     /**
