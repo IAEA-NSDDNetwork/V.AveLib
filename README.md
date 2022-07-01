@@ -8,6 +8,9 @@ V.AveLib is part of the [ENSDF Analysis and Utility Programs](https://nds.iaea.o
 ## Change History
 
 #### 2022-06
+
+Version 2022-06
+
 Bug correction: Compare option was not using the original data as input
 
 Version date added to the output
